@@ -5,12 +5,12 @@ import edu.byu.cs.tweeter.client.model.services.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.RegisterTask;
+import edu.byu.cs.tweeter.client.model.services.handler.BasicHandler;
 import edu.byu.cs.tweeter.client.model.services.handler.GetUserHandler;
 import edu.byu.cs.tweeter.client.model.services.handler.LoginHandler;
-import edu.byu.cs.tweeter.client.model.services.handler.LogoutHandler;
 import edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.LoginObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.LogoutObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.BasicObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 
 public class UserService {
@@ -31,8 +31,8 @@ public class UserService {
         registerTask.run();
     }
 
-    public void Logout(AuthToken authToken, LogoutObserver observer){
-        LogoutTask logoutTask = new LogoutTask(authToken, new LogoutHandler(observer));
+    public void Logout(AuthToken authToken, BasicObserver observer){
+        LogoutTask logoutTask = new LogoutTask(authToken, new BasicHandler(observer));
         logoutTask.run();
     }
 

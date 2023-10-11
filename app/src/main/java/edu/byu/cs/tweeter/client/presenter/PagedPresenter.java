@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import java.util.List;
 
+import edu.byu.cs.tweeter.client.model.services.UserService;
 import edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.ListObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -30,7 +31,8 @@ public abstract class PagedPresenter <T> implements GetUserObserver, ListObserve
     }
 
     public void getUser(AuthToken authToken, String alias){
-        loadUser(authToken, alias);
+        var userService = new UserService();
+        userService.getUser(authToken, alias, this);
         view.showInfoMessage("Getting user's profile...");
     }
 
@@ -43,7 +45,6 @@ public abstract class PagedPresenter <T> implements GetUserObserver, ListObserve
     }
 
     protected abstract void getItems(AuthToken authToken, User targetUser, int pageSize, T lastItem);
-    protected abstract void loadUser(AuthToken authToken, String alias);
 
 
     public void setLastItem(T lastItem) {

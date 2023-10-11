@@ -18,10 +18,4 @@ public class FollowingPresenter extends PagedPresenter<User> implements GetUserO
         var followService = new FollowService();
         followService.getFollowing(authToken, targetUser, pageSize, lastItem, this);
     }
-
-    @Override
-    protected void loadUser(AuthToken authToken, String alias) {
-        var userService = new UserService();
-        userService.getUser(authToken, alias, this);
-    }
 }

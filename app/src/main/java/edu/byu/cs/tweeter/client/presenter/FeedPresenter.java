@@ -18,10 +18,4 @@ public class FeedPresenter extends PagedPresenter<Status>{
         feedService.getFeed(authToken, targetUser, pageSize, lastItem, this);
     }
 
-    @Override
-    protected void loadUser(AuthToken authToken, String alias) {
-        var userService = new UserService();
-        userService.getUser(authToken, alias, this);
-    }
-
 }

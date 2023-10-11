@@ -7,15 +7,13 @@ import edu.byu.cs.tweeter.client.model.services.backgroundTask.GetFollowingCount
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.services.backgroundTask.UnfollowTask;
+import edu.byu.cs.tweeter.client.model.services.handler.BasicHandler;
 import edu.byu.cs.tweeter.client.model.services.handler.CountHandler;
-import edu.byu.cs.tweeter.client.model.services.handler.FollowHandler;
 import edu.byu.cs.tweeter.client.model.services.handler.ListHandler;
-import edu.byu.cs.tweeter.client.model.services.handler.UnfollowHandler;
 import edu.byu.cs.tweeter.client.model.services.handler.IsFollowerHandler;
 import edu.byu.cs.tweeter.client.model.services.observer.CountObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.FollowObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.ListObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.UnfollowObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.BasicObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -54,13 +52,13 @@ public class FollowService {
         isFollowerTask.run();
     }
 
-    public void follow(AuthToken authToken, User selectedUser, FollowObserver observer){
-        FollowTask followTask = new FollowTask(authToken, selectedUser, new FollowHandler(observer));
+    public void follow(AuthToken authToken, User selectedUser, BasicObserver observer){
+        FollowTask followTask = new FollowTask(authToken, selectedUser, new BasicHandler(observer));
         followTask.run();
     }
 
-    public void unfollow(AuthToken authToken, User selectedUser, UnfollowObserver observer){
-        UnfollowTask unfollowTask = new UnfollowTask(authToken, selectedUser, new UnfollowHandler(observer));
+    public void unfollow(AuthToken authToken, User selectedUser, BasicObserver observer){
+        UnfollowTask unfollowTask = new UnfollowTask(authToken, selectedUser, new BasicHandler(observer));
         unfollowTask.run();
     }
 

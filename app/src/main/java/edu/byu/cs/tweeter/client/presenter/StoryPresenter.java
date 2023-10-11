@@ -19,11 +19,4 @@ public class StoryPresenter extends PagedPresenter<Status>{
         feedService.getStory(authToken, targetUser, pageSize, lastItem, this);
     }
 
-
-    @Override
-    protected void loadUser(AuthToken authToken, String alias) {
-        var userService = new UserService();
-        userService.getUser(authToken, alias, this);
-    }
-
 }

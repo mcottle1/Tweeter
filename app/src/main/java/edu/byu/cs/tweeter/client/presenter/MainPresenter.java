@@ -12,17 +12,58 @@ import edu.byu.cs.tweeter.client.model.services.FeedService;
 import edu.byu.cs.tweeter.client.model.services.FollowService;
 import edu.byu.cs.tweeter.client.model.services.UserService;
 import edu.byu.cs.tweeter.client.model.services.observer.CountObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.FollowObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.UnfollowObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.BasicObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.LogoutObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.MessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-public class MainPresenter implements IsFollowerObserver, LogoutObserver, CountObserver, MessageObserver, UnfollowObserver, FollowObserver {
+ //LogoutObserver, , UnfollowObserver, FollowObserver
+public class MainPresenter extends IssueMessageObserver implements IsFollowerObserver, CountObserver, MessageObserver {
 
     private final View view;
+
+    private class LogoutObserver extends IssueMessageObserver implements BasicObserver {
+
+        public LogoutObserver(View view) {
+            super(view, "Failed to logout:");
+        }
+
+        @Override
+        public void serviceSucceeded() {
+            view.logoutUser();
+        }
+
+    }
+
+    private class FollowObserver extends IssueMessageObserver implements BasicObserver {
+
+        public FollowObserver(View view) {
+            super(view, "Failed to follow:");
+        }
+
+        @Override
+        public void serviceSucceeded() {
+            view.updateSelectedUserFollowingAndFollowers();
+            view.updateFollowButtonFollowing();
+        }
+
+    }
+
+     private class UnfollowObserver extends IssueMessageObserver implements BasicObserver {
+
+         public UnfollowObserver(View view) {
+             super(view, "Failed to unfollow:");
+         }
+
+         @Override
+         public void serviceSucceeded() {
+             view.updateSelectedUserFollowingAndFollowers();
+             view.updateFollowButtonFollow();
+         }
+
+     }
 
     public interface View extends edu.byu.cs.tweeter.client.presenter.View  {
         void hideFollowButton();
@@ -39,13 +80,15 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver, CountO
     }
 
     public MainPresenter(View view){
+        super(view, "Main presented action failed");
         this.view = view;
     }
 
     public void logout(AuthToken authToken){
         view.showInfoMessage("Logging Out...");
         var userService = new UserService();
-        userService.Logout(authToken, this);
+        userService.Logout(authToken, new LogoutObserver(this.view));
+        //userService.Logout(authToken, this);
     }
 
     public void getFollowerCount(AuthToken authToken, User selectedUser){
@@ -79,13 +122,13 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver, CountO
 
     private void follow(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.follow(authToken, selectedUser, this);
+        followService.follow(authToken, selectedUser, new FollowObserver(this.view));
         view.showInfoMessage("Adding " + selectedUser.getName() + "...");
     }
 
     private void unfollow(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.unfollow(authToken, selectedUser, this);
+        followService.unfollow(authToken, selectedUser, new UnfollowObserver(this.view));
         view.showInfoMessage("Removing " + selectedUser.getName() + "...");
     }
 
@@ -183,42 +226,8 @@ public class MainPresenter implements IsFollowerObserver, LogoutObserver, CountO
     }
 
     @Override
-    public void UnfollowSucceeded() {
-        view.updateSelectedUserFollowingAndFollowers();
-        view.updateFollowButtonFollow();
-    }
-
-    @Override
-    public void FollowSucceeded() {
-        view.updateSelectedUserFollowingAndFollowers();
-        view.updateFollowButtonFollowing();
-    }
-
-    @Override
-    public void EnableButton() {
-        view.enableButton();
-    }
-
-
-    @Override
-    public void LogoutSucceeded() {
-        view.logoutUser();
-    }
-
-
-    @Override
     public void messageSucceeded(String message) {
         view.showInfoMessage(message);
-    }
-
-    @Override
-    public void handleFailure(String message) {
-        view.showErrorMessage(message);
-    }
-
-    @Override
-    public void handleException(Exception exception) {
-
     }
 
 }
