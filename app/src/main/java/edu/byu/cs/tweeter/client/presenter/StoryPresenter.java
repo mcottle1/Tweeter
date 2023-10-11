@@ -3,10 +3,10 @@ package edu.byu.cs.tweeter.client.presenter;
 
 
 import edu.byu.cs.tweeter.client.model.services.FeedService;
-import edu.byu.cs.tweeter.client.model.services.UserService;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+
 public class StoryPresenter extends PagedPresenter<Status>{
 
     public StoryPresenter(View<Status> view, User user, AuthToken authToken){
@@ -16,7 +16,7 @@ public class StoryPresenter extends PagedPresenter<Status>{
     @Override
     protected void getItems(AuthToken authToken, User targetUser, int pageSize, Status lastItem) {
         var feedService = new FeedService();
-        feedService.getStory(authToken, targetUser, pageSize, lastItem, this);
+        feedService.getStory(authToken, targetUser, pageSize, lastItem, new ListObserver(super.getView()));
     }
 
 }

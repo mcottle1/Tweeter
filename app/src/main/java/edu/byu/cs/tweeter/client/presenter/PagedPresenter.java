@@ -4,12 +4,39 @@ package edu.byu.cs.tweeter.client.presenter;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.model.services.UserService;
-import edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.ListObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public abstract class PagedPresenter <T> implements GetUserObserver, ListObserver<T> {
+public abstract class PagedPresenter <T>{
+
+    public class GetUserObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver {
+        public GetUserObserver(View view) {
+            super(view, "Get user failed: ");
+        }
+
+        @Override
+        public void getUserSucceeded(User user) {
+            view.openMainView(user);
+        }
+    }
+
+    public class ListObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.ListObserver<T>{
+
+        public ListObserver(View view) {
+            super(view, "Get List failed: ");
+        }
+
+        @Override
+        public void getListSucceeded(List<T> list, boolean hasMorePages) {
+            setLastItem((list.size() > 0) ? (T)list.get(list.size() - 1) : null);
+            setHasMorePages(hasMorePages);
+            setLoading(false);
+            view.setViewLoading(false);
+            view.addItems(list);
+        }
+    }
+
     public interface View<U> extends edu.byu.cs.tweeter.client.presenter.View {
         void setViewLoading(boolean isLoading);
         void addItems(List<U> items);
@@ -32,7 +59,7 @@ public abstract class PagedPresenter <T> implements GetUserObserver, ListObserve
 
     public void getUser(AuthToken authToken, String alias){
         var userService = new UserService();
-        userService.getUser(authToken, alias, this);
+        userService.getUser(authToken, alias, new GetUserObserver(view));
         view.showInfoMessage("Getting user's profile...");
     }
 
@@ -67,31 +94,8 @@ public abstract class PagedPresenter <T> implements GetUserObserver, ListObserve
         isLoading = loading;
     }
 
-    @Override
-    public void getUserSucceeded(User user) {
-        view.openMainView(user);
-    }
-
-
-    @Override
-    public void getListSucceeded(List list, boolean hasMorePages) {
-        setLastItem((list.size() > 0) ? (T) list.get(list.size() - 1) : null);
-        setHasMorePages(hasMorePages);
-        setLoading(false);
-        view.setViewLoading(false);
-        view.addItems(list);
-    }
-
-    @Override
-    public void handleFailure(String message) {
-        setLoading(false);
-        view.setViewLoading(false);
-        view.showErrorMessage(message);
-    }
-
-    @Override
-    public void handleException(Exception exception) {
-
+    public View getView() {
+        return view;
     }
 
 }

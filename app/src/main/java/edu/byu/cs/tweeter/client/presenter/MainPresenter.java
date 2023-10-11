@@ -19,7 +19,7 @@ import edu.byu.cs.tweeter.client.model.services.observer.MessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
- //LogoutObserver, , UnfollowObserver, FollowObserver
+
 public class MainPresenter extends IssueMessageObserver implements IsFollowerObserver, CountObserver, MessageObserver {
 
     private final View view;

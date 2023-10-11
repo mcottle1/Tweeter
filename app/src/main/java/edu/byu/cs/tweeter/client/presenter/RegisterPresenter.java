@@ -28,7 +28,7 @@ public class RegisterPresenter extends AuthenticatedPresenter {
         if(validateRegistration(firstName, lastName, alias, password, image)){
             view.showInfoMessage("Registering...");
             var userService = new UserService();
-            userService.Register(firstName, lastName, alias, password, image, this);
+            userService.Register(firstName, lastName, alias, password, image, new LoginObserver(this.view));
         }
     }
 
