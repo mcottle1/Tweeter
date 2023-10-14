@@ -17,7 +17,7 @@ public class LoginPresenter extends AuthenticatedPresenter{
         if(validateLogin(alias, password)){
             view.showInfoMessage("Logging In...");
             var userService = new UserService();
-            userService.login(alias, password, new LoginObserver(view));
+            userService.login(alias, password, new AuthenticateObserver(view));
         }
     }
 

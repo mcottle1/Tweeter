@@ -12,9 +12,9 @@ public abstract class AuthenticatedPresenter{
         this.view = view;
     }
 
-    public class LoginObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.LoginObserver {
+    public class AuthenticateObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.AuthenticateObserver {
 
-        public LoginObserver(View view) {
+        public AuthenticateObserver(View view) {
             super(view, "Login failed: ");
         }
 

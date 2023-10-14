@@ -12,15 +12,15 @@ import edu.byu.cs.tweeter.client.model.services.FeedService;
 import edu.byu.cs.tweeter.client.model.services.FollowService;
 import edu.byu.cs.tweeter.client.model.services.UserService;
 import edu.byu.cs.tweeter.client.model.services.observer.CountObserver;
+import edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.BasicObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.MessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter extends IssueMessageObserver implements IsFollowerObserver, CountObserver, MessageObserver {
+public class MainPresenter extends IssueMessageObserver{
 
     private final View view;
 
@@ -65,6 +65,47 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
 
      }
 
+     private class IsFollowerObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver {
+
+         public IsFollowerObserver(View view) {
+             super(view, "Failed to determine follow status:");
+         }
+
+         @Override
+         public void IsFollowerSucceeded(boolean isFollower) {
+             if (isFollower) {
+                 view.setFollowerButton();
+             } else {
+                 view.setFollowButton();
+             }
+         }
+     }
+
+     private class CountObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.CountObserver {
+
+         public CountObserver(View view) {
+             super(view, "Failed to determine follow/follower count:");
+         }
+
+         @Override
+         public void countSucceeded(int count) {
+             view.setFollowersText("Followers: " + count);
+             view.setFollowingText("Following: " + count);
+         }
+     }
+
+     private class MessageObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.MessageObserver {
+
+         public MessageObserver(View view) {
+             super(view, "Failed with message:");
+         }
+
+         @Override
+         public void messageSucceeded(String message) {
+             view.showInfoMessage(message);
+         }
+     }
+
     public interface View extends edu.byu.cs.tweeter.client.presenter.View  {
         void hideFollowButton();
         void showFollowButton();
@@ -88,17 +129,16 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
         view.showInfoMessage("Logging Out...");
         var userService = new UserService();
         userService.Logout(authToken, new LogoutObserver(this.view));
-        //userService.Logout(authToken, this);
     }
 
     public void getFollowerCount(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.getFollowersCount(authToken, selectedUser, this);
+        followService.getFollowersCount(authToken, selectedUser, new CountObserver(view));
     }
 
     public void getFollowingCount(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.getFollowingCount(authToken, selectedUser, this);
+        followService.getFollowingCount(authToken, selectedUser, new CountObserver(view));
     }
 
     public void isFollower(AuthToken authToken, User selectedUser, User currUser){
@@ -107,7 +147,7 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
         }else{
             view.showFollowButton();
             var followService = new FollowService();
-            followService.isFollower(authToken, currUser, selectedUser, this);
+            followService.isFollower(authToken, currUser, selectedUser, new IsFollowerObserver(view));
         }
     }
 
@@ -128,7 +168,7 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
 
     private void unfollow(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.unfollow(authToken, selectedUser, new UnfollowObserver(this.view));
+        followService.unfollow(authToken, selectedUser, new UnfollowObserver(view));
         view.showInfoMessage("Removing " + selectedUser.getName() + "...");
     }
 
@@ -136,7 +176,7 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
         Status newStatus = new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
         view.showInfoMessage("Posting Status...");
         var feedService = new FeedService();
-        feedService.post(authToken, newStatus, this);
+        feedService.post(authToken, newStatus, new MessageObserver(view));
     }
 
     public void checkUser(User selectedUser){
@@ -207,27 +247,6 @@ public class MainPresenter extends IssueMessageObserver implements IsFollowerObs
         } else {
             return word.length();
         }
-    }
-
-    @Override
-    public void countSucceeded(int count) {
-        view.setFollowersText("Followers: " + count);
-        view.setFollowingText("Following: " + count);
-    }
-
-
-    @Override
-    public void IsFollowerSucceeded(boolean isFollower) {
-        if (isFollower) {
-            view.setFollowerButton();
-        } else {
-            view.setFollowButton();
-        }
-    }
-
-    @Override
-    public void messageSucceeded(String message) {
-        view.showInfoMessage(message);
     }
 
 }
