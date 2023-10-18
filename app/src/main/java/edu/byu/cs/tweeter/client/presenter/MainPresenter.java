@@ -19,6 +19,7 @@ import edu.byu.cs.tweeter.client.model.services.observer.MessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.util.Timestamp;
 
 public class MainPresenter extends IssueMessageObserver{
 
@@ -96,13 +97,16 @@ public class MainPresenter extends IssueMessageObserver{
 
      private class MessageObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.MessageObserver {
 
-         public MessageObserver(View view) {
+        private String message;
+
+         public MessageObserver(View view, String message) {
              super(view, "Failed with message:");
+             this.message = message;
          }
 
          @Override
          public void messageSucceeded(String message) {
-             view.showInfoMessage(message);
+             view.showInfoMessage(this.message);
          }
      }
 
@@ -173,10 +177,10 @@ public class MainPresenter extends IssueMessageObserver{
     }
 
     public void post(AuthToken authToken, User currUser, String post){
-        Status newStatus = new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
+        var newStatus = this.statusFactory(post, currUser);
         view.showInfoMessage("Posting Status...");
-        var feedService = new FeedService();
-        feedService.post(authToken, newStatus, new MessageObserver(view));
+        var feedService = this.feedFactory();
+        feedService.post(authToken, newStatus, new MessageObserver(view, "Post Succeeded!"));
     }
 
     public void checkUser(User selectedUser){
@@ -247,6 +251,14 @@ public class MainPresenter extends IssueMessageObserver{
         } else {
             return word.length();
         }
+    }
+
+    protected FeedService feedFactory(){
+        return new FeedService();
+    }
+    protected Status statusFactory(String post, User currUser){
+        // return new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
+        return new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
     }
 
 }
