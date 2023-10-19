@@ -29,20 +29,19 @@ public abstract class PagedPresenter <T> extends Presenter{
         this.authToken = authToken;
     }
 
-    public class GetUserObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver {
+    public class GetUserObserver extends IssueMessageObserver{
         private View view;
         public GetUserObserver(View view) {
             super(view, "Get user failed: ");
             this.view = view;
         }
 
-        @Override
         public void getUserSucceeded(User user) {
             ((PagedView) view).openMainView(user);
         }
     }
 
-    public class ListObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.ListObserver<T>{
+    public class ListObserver extends IssueMessageObserver{
         private View view;
 
         public ListObserver(PagedView view) {
@@ -50,7 +49,6 @@ public abstract class PagedPresenter <T> extends Presenter{
             this.view = view;
         }
 
-        @Override
         public void getListSucceeded(List<T> list, boolean hasMorePages) {
             setLastItem((list.size() > 0) ? (T)list.get(list.size() - 1) : null);
             setHasMorePages(hasMorePages);

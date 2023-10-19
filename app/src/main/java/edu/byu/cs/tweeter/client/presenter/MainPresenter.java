@@ -18,7 +18,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter extends Presenter{
-    private class LogoutObserver extends IssueMessageObserver implements BasicObserver {
+    public class LogoutObserver extends IssueMessageObserver implements BasicObserver {
 
         public LogoutObserver(MainView view) {
             super(view, "Failed to logout:");
@@ -31,7 +31,7 @@ public class MainPresenter extends Presenter{
 
     }
 
-    private class FollowObserver extends IssueMessageObserver implements BasicObserver {
+    public class FollowObserver extends IssueMessageObserver implements BasicObserver {
 
         public FollowObserver(MainView view) {
             super(view, "Failed to follow:");
@@ -45,7 +45,7 @@ public class MainPresenter extends Presenter{
 
     }
 
-     private class UnfollowObserver extends IssueMessageObserver implements BasicObserver {
+     public class UnfollowObserver extends IssueMessageObserver implements BasicObserver {
 
          public UnfollowObserver(MainView view) {
              super(view, "Failed to unfollow:");
@@ -59,13 +59,12 @@ public class MainPresenter extends Presenter{
 
      }
 
-     private class IsFollowerObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver {
+     public class IsFollowerObserver extends IssueMessageObserver{
 
          public IsFollowerObserver(MainView view) {
              super(view, "Failed to determine follow status:");
          }
 
-         @Override
          public void IsFollowerSucceeded(boolean isFollower) {
              if (isFollower) {
                  ((MainView)view).setFollowerButton();
@@ -75,20 +74,19 @@ public class MainPresenter extends Presenter{
          }
      }
 
-     private class CountObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.CountObserver {
+     public class CountObserver extends IssueMessageObserver{
 
          public CountObserver(MainView view) {
              super(view, "Failed to determine follow/follower count:");
          }
 
-         @Override
          public void countSucceeded(int count) {
              ((MainView)view).setFollowersText("Followers: " + count);
              ((MainView)view).setFollowingText("Following: " + count);
          }
      }
 
-     private class MessageObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.MessageObserver {
+     public class MessageObserver extends IssueMessageObserver{
 
         private String message;
 
@@ -97,7 +95,6 @@ public class MainPresenter extends Presenter{
              this.message = message;
          }
 
-         @Override
          public void messageSucceeded(String message) {
              view.showInfoMessage(this.message);
          }

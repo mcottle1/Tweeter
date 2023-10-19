@@ -16,13 +16,12 @@ public abstract class AuthenticatedPresenter extends Presenter{
         void openMainView(User user);
     }
 
-    public class AuthenticateObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.AuthenticateObserver {
+    public class AuthenticateObserver extends IssueMessageObserver{
 
         public AuthenticateObserver(AuthenticatedView view) {
             super(view, "Login failed: ");
         }
 
-        @Override
         public void loginSucceeded(AuthToken authToken, User user) {
             view.showInfoMessage("Hello, " + user.getName());
             ((AuthenticatedView)view).openMainView(user);
