@@ -6,9 +6,9 @@ import edu.byu.cs.tweeter.client.model.services.UserService;
 public class LoginPresenter extends AuthenticatedPresenter{
 
 
-    private final View view;
+    private final AuthenticatedView view;
 
-    public LoginPresenter(View view){
+    public LoginPresenter(AuthenticatedView view){
         super(view);
         this.view = view;
     }

@@ -8,42 +8,8 @@ import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public abstract class PagedPresenter <T>{
+public abstract class PagedPresenter <T> extends Presenter{
 
-    public class GetUserObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver {
-        public GetUserObserver(View view) {
-            super(view, "Get user failed: ");
-        }
-
-        @Override
-        public void getUserSucceeded(User user) {
-            view.openMainView(user);
-        }
-    }
-
-    public class ListObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.ListObserver<T>{
-
-        public ListObserver(View view) {
-            super(view, "Get List failed: ");
-        }
-
-        @Override
-        public void getListSucceeded(List<T> list, boolean hasMorePages) {
-            setLastItem((list.size() > 0) ? (T)list.get(list.size() - 1) : null);
-            setHasMorePages(hasMorePages);
-            setLoading(false);
-            view.setViewLoading(false);
-            view.addItems(list);
-        }
-    }
-
-    public interface View<U> extends edu.byu.cs.tweeter.client.presenter.View {
-        void setViewLoading(boolean isLoading);
-        void addItems(List<U> items);
-        void openMainView(User user);
-    }
-
-    private final View view;
     private static final int PAGE_SIZE = 10;
     private final User targetUser;
     private final AuthToken authToken;
@@ -51,22 +17,60 @@ public abstract class PagedPresenter <T>{
     private boolean hasMorePages = true;
     private boolean isLoading = false;
 
-    protected PagedPresenter(View view, User targetUser, AuthToken authToken) {
-        this.view = view;
+    public interface PagedView<U> extends Presenter.View {
+        void setViewLoading(boolean isLoading);
+        void addItems(List<U> items);
+        void openMainView(User user);
+    }
+
+    protected PagedPresenter(PagedView view, User targetUser, AuthToken authToken) {
+        super(view);
         this.targetUser = targetUser;
         this.authToken = authToken;
     }
 
+    public class GetUserObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.GetUserObserver {
+        private View view;
+        public GetUserObserver(View view) {
+            super(view, "Get user failed: ");
+            this.view = view;
+        }
+
+        @Override
+        public void getUserSucceeded(User user) {
+            ((PagedView) view).openMainView(user);
+        }
+    }
+
+    public class ListObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.ListObserver<T>{
+        private View view;
+
+        public ListObserver(PagedView view) {
+            super(view, "Get List failed: ");
+            this.view = view;
+        }
+
+        @Override
+        public void getListSucceeded(List<T> list, boolean hasMorePages) {
+            setLastItem((list.size() > 0) ? (T)list.get(list.size() - 1) : null);
+            setHasMorePages(hasMorePages);
+            setLoading(false);
+            ((PagedView) view).setViewLoading(false);
+            ((PagedView) view).addItems(list);
+        }
+    }
+
+
     public void getUser(AuthToken authToken, String alias){
         var userService = new UserService();
-        userService.getUser(authToken, alias, new GetUserObserver(view));
+        userService.getUser(authToken, alias, new GetUserObserver(((PagedView) view)));
         view.showInfoMessage("Getting user's profile...");
     }
 
     public void loadMoreItems() {
         if (!isLoading && hasMorePages) {// This guard is important for avoiding a race condition in the scrolling code.
             setLoading(true);
-            view.setViewLoading(true);
+            ((PagedView) view).setViewLoading(true);
             getItems(authToken, targetUser, PAGE_SIZE, lastItem);
         }
     }
@@ -94,8 +98,8 @@ public abstract class PagedPresenter <T>{
         isLoading = loading;
     }
 
-    public View getView() {
-        return view;
+    public PagedView getView() {
+        return ((PagedView) view);
     }
 
 }

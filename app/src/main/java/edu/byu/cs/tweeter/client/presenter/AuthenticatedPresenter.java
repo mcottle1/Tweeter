@@ -5,28 +5,28 @@ import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public abstract class AuthenticatedPresenter{
-    private final View view;
+public abstract class AuthenticatedPresenter extends Presenter{
 
-    protected AuthenticatedPresenter(View view) {
-        this.view = view;
+    protected AuthenticatedPresenter(AuthenticatedView view) {
+        super(view);
+    }
+
+
+    public interface AuthenticatedView extends Presenter.View {
+        void openMainView(User user);
     }
 
     public class AuthenticateObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.AuthenticateObserver {
 
-        public AuthenticateObserver(View view) {
+        public AuthenticateObserver(AuthenticatedView view) {
             super(view, "Login failed: ");
         }
 
         @Override
         public void loginSucceeded(AuthToken authToken, User user) {
             view.showInfoMessage("Hello, " + user.getName());
-            view.openMainView(user);
+            ((AuthenticatedView)view).openMainView(user);
         }
-    }
-
-    public interface View extends edu.byu.cs.tweeter.client.presenter.View {
-        void openMainView(User user);
     }
 
 }

@@ -41,7 +41,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.util.Timestamp;
 
 
-public class FeedFragment extends Fragment implements PagedPresenter.View<Status> {
+public class FeedFragment extends Fragment implements PagedPresenter.PagedView<Status> {
     private static final String LOG_TAG = "FeedFragment";
     private static final String USER_KEY = "UserKey";
 

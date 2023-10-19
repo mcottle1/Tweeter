@@ -17,7 +17,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenterUnitTests {
 
-    private MainPresenter.View mockMainView;
+    private MainPresenter.MainView mockMainView;
     private FeedService mockFeedService;
     private MainPresenter mainPresenterSpy;
 
@@ -25,11 +25,10 @@ public class MainPresenterUnitTests {
     private User currUser = new User("John", "Doe", "URL");
     private String post = "Pizza";
     private Status status = new Status(post, currUser, System.currentTimeMillis(), new ArrayList<>(), new ArrayList<>());
-    private Status createdStatus;
 
     @BeforeEach
     public void setup(){
-        mockMainView = Mockito.mock(MainPresenter.View.class);
+        mockMainView = Mockito.mock(MainPresenter.MainView.class);
         mockFeedService = Mockito.mock(FeedService.class);
         mainPresenterSpy = Mockito.spy( new MainPresenter(mockMainView));
         Mockito.when(mainPresenterSpy.feedFactory()).thenReturn(mockFeedService);

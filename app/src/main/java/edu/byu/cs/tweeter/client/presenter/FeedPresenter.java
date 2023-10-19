@@ -7,7 +7,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class FeedPresenter extends PagedPresenter<Status>{
 
-    public FeedPresenter(View view, User user, AuthToken authToken){
+    public FeedPresenter(PagedView view, User user, AuthToken authToken){
         super(view, user, authToken);
     }
 

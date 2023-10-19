@@ -9,7 +9,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class StoryPresenter extends PagedPresenter<Status>{
 
-    public StoryPresenter(View<Status> view, User user, AuthToken authToken){
+    public StoryPresenter(PagedView<Status> view, User user, AuthToken authToken){
         super(view,user, authToken);
     }
 

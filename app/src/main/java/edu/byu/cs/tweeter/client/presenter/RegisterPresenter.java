@@ -11,11 +11,8 @@ import edu.byu.cs.tweeter.client.model.services.UserService;
 
 public class RegisterPresenter extends AuthenticatedPresenter {
 
-    private final View view;
-
-    public RegisterPresenter(View view){
+    public RegisterPresenter(AuthenticatedView view){
         super(view);
-        this.view = view;
     }
 
     public void register(String firstName, String lastName, String alias, String password, ImageView imageToUpload){
@@ -28,7 +25,7 @@ public class RegisterPresenter extends AuthenticatedPresenter {
         if(validateRegistration(firstName, lastName, alias, password, image)){
             view.showInfoMessage("Registering...");
             var userService = new UserService();
-            userService.Register(firstName, lastName, alias, password, image, new AuthenticateObserver(this.view));
+            userService.Register(firstName, lastName, alias, password, image, new AuthenticateObserver((AuthenticatedView) this.view));
         }
     }
 

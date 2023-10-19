@@ -11,87 +11,80 @@ import java.util.List;
 import edu.byu.cs.tweeter.client.model.services.FeedService;
 import edu.byu.cs.tweeter.client.model.services.FollowService;
 import edu.byu.cs.tweeter.client.model.services.UserService;
-import edu.byu.cs.tweeter.client.model.services.observer.CountObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.IssueMessageObserver;
 import edu.byu.cs.tweeter.client.model.services.observer.BasicObserver;
-import edu.byu.cs.tweeter.client.model.services.observer.MessageObserver;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
-import edu.byu.cs.tweeter.util.Timestamp;
 
-public class MainPresenter extends IssueMessageObserver{
-
-    private final View view;
-
+public class MainPresenter extends Presenter{
     private class LogoutObserver extends IssueMessageObserver implements BasicObserver {
 
-        public LogoutObserver(View view) {
+        public LogoutObserver(MainView view) {
             super(view, "Failed to logout:");
         }
 
         @Override
         public void serviceSucceeded() {
-            view.logoutUser();
+            ((MainView)view).logoutUser();
         }
 
     }
 
     private class FollowObserver extends IssueMessageObserver implements BasicObserver {
 
-        public FollowObserver(View view) {
+        public FollowObserver(MainView view) {
             super(view, "Failed to follow:");
         }
 
         @Override
         public void serviceSucceeded() {
-            view.updateSelectedUserFollowingAndFollowers();
-            view.updateFollowButtonFollowing();
+            ((MainView)view).updateSelectedUserFollowingAndFollowers();
+            ((MainView)view).updateFollowButtonFollowing();
         }
 
     }
 
      private class UnfollowObserver extends IssueMessageObserver implements BasicObserver {
 
-         public UnfollowObserver(View view) {
+         public UnfollowObserver(MainView view) {
              super(view, "Failed to unfollow:");
          }
 
          @Override
          public void serviceSucceeded() {
-             view.updateSelectedUserFollowingAndFollowers();
-             view.updateFollowButtonFollow();
+             ((MainView)view).updateSelectedUserFollowingAndFollowers();
+             ((MainView)view).updateFollowButtonFollow();
          }
 
      }
 
      private class IsFollowerObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.IsFollowerObserver {
 
-         public IsFollowerObserver(View view) {
+         public IsFollowerObserver(MainView view) {
              super(view, "Failed to determine follow status:");
          }
 
          @Override
          public void IsFollowerSucceeded(boolean isFollower) {
              if (isFollower) {
-                 view.setFollowerButton();
+                 ((MainView)view).setFollowerButton();
              } else {
-                 view.setFollowButton();
+                 ((MainView)view).setFollowButton();
              }
          }
      }
 
      private class CountObserver extends IssueMessageObserver implements edu.byu.cs.tweeter.client.model.services.observer.CountObserver {
 
-         public CountObserver(View view) {
+         public CountObserver(MainView view) {
              super(view, "Failed to determine follow/follower count:");
          }
 
          @Override
          public void countSucceeded(int count) {
-             view.setFollowersText("Followers: " + count);
-             view.setFollowingText("Following: " + count);
+             ((MainView)view).setFollowersText("Followers: " + count);
+             ((MainView)view).setFollowingText("Following: " + count);
          }
      }
 
@@ -99,7 +92,7 @@ public class MainPresenter extends IssueMessageObserver{
 
         private String message;
 
-         public MessageObserver(View view, String message) {
+         public MessageObserver(MainView view, String message) {
              super(view, "Failed with message:");
              this.message = message;
          }
@@ -110,7 +103,7 @@ public class MainPresenter extends IssueMessageObserver{
          }
      }
 
-    public interface View extends edu.byu.cs.tweeter.client.presenter.View  {
+    public interface MainView extends Presenter.View  {
         void hideFollowButton();
         void showFollowButton();
         void logoutUser();
@@ -125,38 +118,37 @@ public class MainPresenter extends IssueMessageObserver{
     }
 
     public MainPresenter(View view){
-        super(view, "Main presented action failed");
-        this.view = view;
+        super(view);
     }
 
     public void logout(AuthToken authToken){
         view.showInfoMessage("Logging Out...");
         var userService = new UserService();
-        userService.Logout(authToken, new LogoutObserver(this.view));
+        userService.Logout(authToken, new LogoutObserver(((MainView)view)));
     }
 
     public void getFollowerCount(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.getFollowersCount(authToken, selectedUser, new CountObserver(view));
+        followService.getFollowersCount(authToken, selectedUser, new CountObserver(((MainView)view)));
     }
 
     public void getFollowingCount(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.getFollowingCount(authToken, selectedUser, new CountObserver(view));
+        followService.getFollowingCount(authToken, selectedUser, new CountObserver(((MainView)view)));
     }
 
     public void isFollower(AuthToken authToken, User selectedUser, User currUser){
         if(selectedUser.compareTo(currUser) == 0){
-            view.hideFollowButton();
+            ((MainView)view).hideFollowButton();
         }else{
-            view.showFollowButton();
+            ((MainView)view).showFollowButton();
             var followService = new FollowService();
-            followService.isFollower(authToken, currUser, selectedUser, new IsFollowerObserver(view));
+            followService.isFollower(authToken, currUser, selectedUser, new IsFollowerObserver(((MainView)view)));
         }
     }
 
     public void followOrUnfollow(String buttonText, AuthToken authToken, User selectedUser){
-        view.enableButton();
+        ((MainView)view).enableButton();
         if (buttonText.equals("Following")) {
             unfollow(authToken, selectedUser);
         } else {
@@ -166,13 +158,13 @@ public class MainPresenter extends IssueMessageObserver{
 
     private void follow(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.follow(authToken, selectedUser, new FollowObserver(this.view));
+        followService.follow(authToken, selectedUser, new FollowObserver(((MainView)view)));
         view.showInfoMessage("Adding " + selectedUser.getName() + "...");
     }
 
     private void unfollow(AuthToken authToken, User selectedUser){
         var followService = new FollowService();
-        followService.unfollow(authToken, selectedUser, new UnfollowObserver(view));
+        followService.unfollow(authToken, selectedUser, new UnfollowObserver(((MainView)view)));
         view.showInfoMessage("Removing " + selectedUser.getName() + "...");
     }
 
@@ -180,7 +172,7 @@ public class MainPresenter extends IssueMessageObserver{
         var newStatus = this.statusFactory(post, currUser);
         view.showInfoMessage("Posting Status...");
         var feedService = this.feedFactory();
-        feedService.post(authToken, newStatus, new MessageObserver(view, "Post Succeeded!"));
+        feedService.post(authToken, newStatus, new MessageObserver(((MainView)view), "Post Succeeded!"));
     }
 
     public void checkUser(User selectedUser){
@@ -257,7 +249,6 @@ public class MainPresenter extends IssueMessageObserver{
         return new FeedService();
     }
     protected Status statusFactory(String post, User currUser){
-        // return new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
         return new Status(post, currUser, System.currentTimeMillis(), parseURLs(post), parseMentions(post));
     }
 
